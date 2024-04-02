@@ -30,9 +30,8 @@ if (have_min_apache_version('2.5.0')) {
     exit 0;
 }
 
-# todo: amend to 2.4.59
-if (not have_min_apache_version('2.4.60')) {
-    print "1..0 # skip: Test not valid before 2.4.60";
+if (not have_min_apache_version('2.4.59')) {
+    print "1..0 # skip: Test not valid before 2.4.59";
     exit 0;
 }
 
