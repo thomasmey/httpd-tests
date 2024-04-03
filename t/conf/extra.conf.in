@@ -1527,6 +1527,8 @@ LimitRequestFields    32
              AddType text/html isohtml
              AddCharset ISO-8859-1 .isoxml
              AddCharset ISO-8859-1 .isohtml
+             AddCharset UTF-8 .xml
+             AddCharset UTF-8 .fooxml
          </Location>
          <Location /modules/xml2enc/front>
              ProxyHTMLEnable on
