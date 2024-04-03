@@ -1525,7 +1525,6 @@ LimitRequestFields    32
              AddType application/notreallyxml notxml
              AddType application/xml xml
              AddType text/html isohtml
-             AddCharset ISO-8859-1 .isoxml
              AddCharset ISO-8859-1 .isohtml
              AddCharset UTF-8 .xml
              AddCharset UTF-8 .fooxml
