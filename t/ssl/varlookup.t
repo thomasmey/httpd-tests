@@ -11,12 +11,14 @@ unless (have_lwp) {
     plan tests => 0, need_lwp;
 }
 
-use Time::localtime;
+unless (eval "require Time::localtime") {
+    plan tests => 0, need 'Time::localtime';
+}
 
 my $config = Apache::Test::config();
 my $vars   = Apache::Test::vars();
 my $server = $config->server;
-my $time = localtime();
+my $time = Time::localtime::localtime();
 
 (my $mmn = $config->{httpd_info}->{MODULE_MAGIC_NUMBER}) =~ s/:\d+$//;
 
