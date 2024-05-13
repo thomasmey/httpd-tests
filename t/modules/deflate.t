@@ -47,6 +47,8 @@ else {
         foreach (1 .. ($tests_per_uri * @server_bucketeer_uri));
 }
 for my $server_deflate_uri (@server_deflate_uris) {
+    print("# testing deflate URI: $server_deflate_uri\n");
+
     my $original_str = GET_BODY($server_deflate_uri);
 
     my $deflated_str = GET_BODY($server_deflate_uri, @deflate_headers);
