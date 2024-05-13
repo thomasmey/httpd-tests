@@ -60,20 +60,18 @@ static int test_pass_brigade_handler(request_rec *r)
             bucket = apr_bucket_eos_create(c->bucket_alloc);
             APR_BRIGADE_INSERT_TAIL(bb, bucket);
 
-#if 0
-            /* ###### A FLUSH should not be strictly necessary here
-             * but inserting one apears to work around intermittent
-             * failures when running t/apache/pass_brigade.t under
-             * worker. */
             bucket = apr_bucket_flush_create(c->bucket_alloc);
-            APR_BRIGADE_INSERT_TAIL(bb, bucket);
-#endif
+            APR_BRIGADE_INSERT_TAIL(bb, e);
 
             ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
                           "[mod_test_pass_brigade] sending EOS");
         }
 
-        status = ap_pass_brigade(r->output_filters->next, bb);
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "[mod_test_pass_brigade] passing to output filter %s",
+                      r->output_filters->frec->name);
+        
+        status = ap_pass_brigade(r->output_filters, bb);
 
         if (status != APR_SUCCESS) {
             apr_brigade_destroy(bb);
