@@ -1,4 +1,4 @@
-print "HTTP/1.0 200 OK\r\n";
+print "HTTP/1.1 200 OK\r\n";
 print "Transfer-Encoding: chunked\r\n";
 print "\r\n";
 
