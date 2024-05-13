@@ -61,7 +61,7 @@ static int test_pass_brigade_handler(request_rec *r)
             APR_BRIGADE_INSERT_TAIL(bb, bucket);
 
             bucket = apr_bucket_flush_create(c->bucket_alloc);
-            APR_BRIGADE_INSERT_TAIL(bb, e);
+            APR_BRIGADE_INSERT_TAIL(bb, bucket);
 
             ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
                           "[mod_test_pass_brigade] sending EOS");
