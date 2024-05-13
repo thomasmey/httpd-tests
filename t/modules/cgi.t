@@ -8,6 +8,7 @@ use File::stat;
 
 my $have_apache_2 = have_apache 2;
 my $have_apache_2050 = have_min_apache_version "2.0.50";
+my $have_apache_2460 = have_min_apache_version "2.4.60";
 
 my $script_log_length = 40960;
 
@@ -48,6 +49,10 @@ my %test = (
     },
     'bogus-sh.sh' => {
         'rc' => 500,
+        'expect' => 'none'
+    },
+    'bogus-te.sh' => {
+        'rc' => 502,
         'expect' => 'none'
     },
     'acceptpathinfoon.sh' => {
@@ -105,6 +110,11 @@ if (Apache::TestConfig::WINFU() || !$have_apache_2) {
 # CGI stderr handling works in 2.0.50 and later only on Unixes.
 if (!$have_apache_2050 || Apache::TestConfig::WINFU()) {
     delete @test{qw(stderr1.pl stderr2.pl stderr3.pl nph-stderr.pl)};
+}
+
+# Test for a CGI script with Transfer-Encoding: chunked
+if (1 || !$have_apache_2460 || Apache::TestConfig::WINFU()) {
+    delete @test{qw(bogus-te.sh)};
 }
 
 my $tests = ((keys %test) * 2) + (@post_content * 3) + 4;
