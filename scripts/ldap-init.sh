@@ -7,7 +7,7 @@ sleep 5
 # For the CentOS slapd configuration, load some default schema:
 if ${DOCKER} exec -i $cid1 test -f /etc/centos-release; then
     : Adjusting CentOS-style OpenLDAP configuration
-    if ${DOCKER} exec -i $cid1 test -f /etc/centos-release | grep 'CentOS Stream'; then
+    if ${DOCKER} exec -i $cid1 grep 'CentOS Stream' /etc/centos-release; then
         ${DOCKER} exec -i $cid1 /usr/bin/ldapadd -Y EXTERNAL -H ldapi:// < scripts/slapd-config-mdb.ldif
         ${DOCKER} exec -i $cid2 /usr/bin/ldapadd -Y EXTERNAL -H ldapi:// < scripts/slapd-config-mdb.ldif
     else
