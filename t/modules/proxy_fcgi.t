@@ -9,7 +9,12 @@ use Misc;
 my $have_fcgisetenvif    = have_min_apache_version('2.4.26');
 my $have_fcgibackendtype = have_min_apache_version('2.4.26');
 # NOTE: This will fail if php-fpm is installed but not in $PATH
-my $have_php_fpm = `php-fpm -v` =~ /fpm-fcgi/;
+
+my $php_fpm = 'php-fpm';
+
+$php_fpm = $ENV{'PHP_FPM'} if defined $ENV{'PHP_FPM'};
+
+my $have_php_fpm = `$php_fpm -v` =~ /fpm-fcgi/;
 
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
@@ -245,7 +250,7 @@ if (have_module('actions')) {
             exit;
         }
         if ($pid == 0) {
-            system "php-fpm -n -D -g $pid_file -p $servroot/php-fpm";
+            system "$php_fpm -n -D -g $pid_file -p $servroot/php-fpm";
             exit;
         }
         # Wait for php-fpm to start-up
