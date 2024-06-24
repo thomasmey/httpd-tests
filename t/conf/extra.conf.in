@@ -275,7 +275,12 @@
 
     RewriteRule ^/modules/rewrite/escaping/qsd-like/(.*) /$1? [R]
     RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa/(.*) /$1? [R,QSA]
+    <IfVersion < 2.4.60>
     RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa-qsl/(.*) /$1? [R,QSA,QSL]
+    </IfVersion>
+    <IfVersion >= 2.4.60>
+    RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa-qsl/(.*) /$1? [R,QSA,QSL,UnsafeAllow3F]
+    </IfVersion>
 
     <IfVersion >= 2.4.57>
       RewriteRule ^/modules/rewrite/escaping/local_bctls/(.*) /?$1 [BCTLS]
@@ -295,9 +300,28 @@
       RewriteRule proxy_ne/(.*) http://@SERVERNAME@:@PORT@/?$1 [P,NE]
     </LocationMatch>
 
-   <Location /modules/rewrite/escaping>
+   <Location /modules/rewrite/>
       Header always set rewritten-query "expr=%{QUERY_STRING}"
    </Location>
+
+   <VirtualHost rewrite_prefix_stat>
+      # This can go beyond the default LimitRequestLine of 128 depending on ServerRoot
+      LimitRequestLine 1024
+      # If the prefix stat fails, it would become docroot-relative and 404. Note the at-serverroot is a literal in the generated httpd.conf
+      RewriteRule ^/modules/rewrite/prefixstat/index.html @SERVERROOT@/htdocs/index.html
+      RewriteRule ^/modules/rewrite/prefixstat/query/index.html %{QUERY_STRING}
+      <IfVersion >= 2.4.60>
+        RewriteRule ^/modules/rewrite/prefixstat/query-optin/index.html %{QUERY_STRING} [UnsafePrefixStat]
+      </IfVersion>
+   </VirtualHost>
+
+    RewriteRule ^/modules/rewrite/badquery/literal /modules/rewrite/badquery/literal?theval [PT]
+    <IfVersion >= 2.4.60>
+      RewriteRule ^/modules/rewrite/badquery/backref/(.*)$ /modules/rewrite/badquery/backref$1 [PT]
+      RewriteRule ^/modules/rewrite/badquery/backref-optin/(.*)$ /modules/rewrite/badquery/backref$1 [PT,UnsafeAllow3F]
+    </IfVersion>
+
+
    <VirtualHost cve_2011_3368_rewrite>
       DocumentRoot @SERVERROOT@/htdocs/modules/proxy
       RewriteEngine On

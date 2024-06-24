@@ -58,6 +58,32 @@ if (have_min_apache_version('2.4.57')) {
     ));
 }
 
+my @badquery = (
+   [ "/modules/rewrite/badquery/literal"                         =>  "theval"],
+);
+if (have_min_apache_version('2.4.60')) {
+    push(@badquery, (
+        [ "/modules/rewrite/badquery/backref/%3theval"                  =>  ""],
+        [ "/modules/rewrite/badquery/backref-optin/%3ftheval"           =>  "theval"],
+    ));
+}
+
+my @prefixstats = (
+        [ "/modules/rewrite/prefixstat/index.html"                          =>  200],
+        # under docroot is permitted.
+        [ "/modules/rewrite/prefixstat/query/index.html?"
+                .Apache::Test::vars('documentroot')."/index.html"           =>  200],
+        [ "/modules/rewrite/prefixstat/query/index.html?"
+                .Apache::Test::vars('serverroot')."/conf/core.conf" =>  404],
+);
+
+if (have_min_apache_version('2.4.60')){
+    push(@prefixstats, (
+        [ "/modules/rewrite/prefixstat/query-optin/index.html?"
+                .Apache::Test::vars('serverroot')."/conf/core.conf" =>  200],
+    ));
+}
+
 if (!have_min_apache_version('2.4.19')) {
     # PR 50447, server context
     push @todo, 26
@@ -72,7 +98,8 @@ my $vary_header_tests = (have_min_apache_version("2.4.30") ? 9 : 0) + (have_min_
 my $cookie_tests = have_min_apache_version("2.4.47") ? 6 : 0;
 my @redirects = map {$_->[2] ? $_ : ()} @redirects_all;
 
-plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests + scalar(@escapes) + scalar(@redirects) + scalar(@bflags),
+plan tests => @map * @num + 16 + $vary_header_tests + $cookie_tests + scalar(@escapes) + scalar(@redirects) + scalar(@bflags)
+              + scalar(@badquery) + scalar(@prefixstats),
               todo => \@todo, need_module 'rewrite';
 
 foreach (@map) {
@@ -256,5 +283,26 @@ foreach my $t (@redirects) {
     my $loc = $r->header("location");
     t_debug " redirect is $loc";
     ok $loc =~ /$expect/;
+}
+
+foreach my $t (@badquery) {
+    my $url= $t->[0];
+    my $expect= $t->[1];
+    $expect = "" unless defined $expect;
+    t_debug "Check $url for $expect\n";
+    $r = GET($url, redirect_ok => 0);
+    my $received = $r->header("rewritten-query");
+    $received = "" unless defined $received;
+    t_debug("rewritten query $received\n");
+    ok t_cmp $received, $expect;
+}
+
+foreach my $t (@prefixstats) {
+    # Uses vhost "rewrite_prefix_stat" with larger LimitRequestLine
+    my $url= Apache::TestRequest::module2url("rewrite_prefix_stat", { path => $t->[0] });
+    my $expect = $t->[1];
+    t_debug "Check $url for $expect\n";
+    $r = GET($url, redirect_ok => 0);
+    ok t_cmp $r->code, $expect;
 }
 
