@@ -18,6 +18,13 @@ my @tests_action = (
     [ "modules/actions/action/test.xyz2",	200, 	"nada"],	# Handler for .xyz2, and virtual
 );
 
+if (have_min_apache_version('2.4.60')) {
+    push(@tests_action, (
+        [ "/cgi_mod_actions/action.sh?my-file-type2:/modules/actions/action/dummy", 404],
+        [ "/cgi_mod_actions/action.sh?server-status:/dne", 404],
+    ));
+}
+
 my @tests_script = (
     [ "modules/actions/script/test.x",		404],
     [ "modules/actions/script/test.x?foo=bar",	200,	"foo=bar"],
@@ -29,6 +36,7 @@ plan tests => scalar @tests_action*2 + scalar @tests_script*(2+2+1), need_module
 
 foreach my $test (@tests_action) {
 	$r = GET($test->[0]);
+    t_debug "Check $test->[0] for $test->[1]\n";
 	ok t_cmp($r->code, $test->[1]);
 	if ($test->[1] == 200) {
 		ok t_cmp($r->content, $test->[2]);
@@ -40,6 +48,7 @@ foreach my $test (@tests_action) {
 
 foreach my $test (@tests_script) {
 	$r = GET($test->[0]);
+    t_debug "Check $test->[0] for $test->[1]\n";
 	ok t_cmp($r->code, $test->[1]);
 	if ($test->[1] == 200) {
 		ok t_cmp($r->content, $test->[2]);
