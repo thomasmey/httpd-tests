@@ -192,3 +192,11 @@
      AllowOverride All
   </Directory>
 </IfModule>
+
+ProxyPass /modules/proxy/fcgi-uds "unix:/tmp/apache-test-builtinfcgi.sock|fcgi://unused"
+Alias /modules/proxy/fcgi-uds-sethandler @SERVERROOT@/htdocs/modules/proxy/fcgi
+<LocationMatch /modules/proxy/fcgi-uds-sethandler/.*\.php$>
+    SetHandler "proxy:unix:/tmp/apache-test-builtinfcgi.sock|fcgi://unused"
+</LocationMatch>
+
+

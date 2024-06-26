@@ -16,10 +16,16 @@ $php_fpm = $ENV{'PHP_FPM'} if defined $ENV{'PHP_FPM'};
 
 my $have_php_fpm = `$php_fpm -v` =~ /fpm-fcgi/;
 
+my @udstests = (
+        "/modules/proxy/fcgi-uds/index.php",
+        "/modules/proxy/fcgi-uds-sethandler/index.php"
+);
+
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
                (7 * have_module('rewrite')) + (7 * have_module('actions')) +
-               (15 * $have_php_fpm * have_module('actions')) + 2,
+               (15 * $have_php_fpm * have_module('actions')) + 2
+               + 2*(scalar(@udstests)),
      need (
         'mod_proxy_fcgi',
         'FCGI',
@@ -52,7 +58,13 @@ sub run_fcgi_handler($$)
 
     if ($pid == 0) {
         # Child process. Open up a listening socket.
-        my $sock = FCGI::OpenSocket(":$fcgi_port", 10);
+        my $sock;
+        if ($fcgi_port =~ m@/@) {
+          $sock = FCGI::OpenSocket("$fcgi_port", 10); # uds
+        }
+        else {
+          $sock = FCGI::OpenSocket(":$fcgi_port", 10);
+        }
 
         # Signal the parent process that we're ready.
         print WRITE_END 'x';
@@ -118,7 +130,7 @@ sub run_fcgi_envvar_request
     my $backend   = shift || "FCGI";
 
     # Launch the FCGI process.
-    my $child = launch_envvar_echo_daemon($fcgi_port) unless ($fcgi_port <= 0) ;
+    my $child = launch_envvar_echo_daemon($fcgi_port) if defined($fcgi_port);
 
     # Hit the backend.
     my $r = GET($uri);
@@ -134,8 +146,8 @@ sub run_fcgi_envvar_request
         $envs{$components[0]} = $components[1];
     }
 
-    if ($fcgi_port > 0) {
-        if ($r->code eq '500') {
+    if(defined($fcgi_port)) {
+        if ($r->code ge '500') {
             # Unknown failure, probably the request didn't hit the FCGI child
             # process, so it will hang waiting for our request
             kill 'TERM', $child;
@@ -259,7 +271,7 @@ if (have_module('actions')) {
             exit;
         }
         sleep(1);
-        $envs = run_fcgi_envvar_request(0, "/php/fpm/action/sub2/test.php/foo/bar?query", "PHP-FPM");
+        $envs = run_fcgi_envvar_request(undef, "/php/fpm/action/sub2/test.php/foo/bar?query", "PHP-FPM");
         ok t_cmp($envs->{'SCRIPT_NAME'}, '/php/fpm/action/sub2/test.php',
                 "Handler PHP-FPM sets correct SCRIPT_NAME");
         ok t_cmp($envs->{'PATH_INFO'}, '/foo/bar',
@@ -271,7 +283,7 @@ if (have_module('actions')) {
         ok t_cmp($envs->{'FCGI_ROLE'}, 'RESPONDER',
                 "Handler PHP-FPM sets correct FCGI_ROLE");
 
-        $envs = run_fcgi_envvar_request(0, "/php-fpm-pp/php/fpm/pp/sub1/test.php/foo/bar?query", "PHP-FPM");
+        $envs = run_fcgi_envvar_request(undef, "/php-fpm-pp/php/fpm/pp/sub1/test.php/foo/bar?query", "PHP-FPM");
         ok t_cmp($envs->{'SCRIPT_NAME'}, '/php-fpm-pp/php/fpm/pp/sub1/test.php',
                 "ProxyPass PHP-FPM sets correct SCRIPT_NAME");
         ok t_cmp($envs->{'PATH_INFO'}, '/foo/bar',
@@ -283,7 +295,7 @@ if (have_module('actions')) {
         ok t_cmp($envs->{'FCGI_ROLE'}, 'RESPONDER',
                 "ProxyPass PHP-FPM sets correct FCGI_ROLE");
 
-        $envs = run_fcgi_envvar_request(0, "/php-fpm-pp/php/fpm/pp/sub1/test.php", "PHP-FPM");
+        $envs = run_fcgi_envvar_request(undef, "/php-fpm-pp/php/fpm/pp/sub1/test.php", "PHP-FPM");
         ok t_cmp($envs->{'PATH_INFO'}, undef,
                 "ProxyPass PHP-FPM sets correct empty PATH_INFO");
         ok t_cmp($envs->{'PATH_TRANSLATED'}, undef,
@@ -303,3 +315,7 @@ if (have_module('actions')) {
 $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi/index.php");
 ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets correct SCRIPT_NAME by default");
 
+foreach my $url (@udstests) {
+    $envs = run_fcgi_envvar_request("/tmp/apache-test-builtinfcgi.sock", "$url");
+    ok t_cmp($envs->{'SCRIPT_NAME'}, "$url", "Server sets correct SCRIPT_NAME by default");
+}
