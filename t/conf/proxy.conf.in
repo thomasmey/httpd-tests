@@ -193,10 +193,10 @@
   </Directory>
 </IfModule>
 
-ProxyPass /modules/proxy/fcgi-uds "unix:@SERVERROOT@/logs/fcgi.sock|fcgi://unused"
+ProxyPass /modules/proxy/fcgi-uds "unix:/tmp/apache-test-builtinfcgi.sock|fcgi://unused"
 Alias /modules/proxy/fcgi-uds-sethandler @SERVERROOT@/htdocs/modules/proxy/fcgi
 <LocationMatch /modules/proxy/fcgi-uds-sethandler/.*\.php$>
-    SetHandler "proxy:unix:@SERVERROOT@/logs/fcgi.sock|fcgi://unused"
+    SetHandler "proxy:unix:/tmp/apache-test-builtinfcgi.sock|fcgi://unused"
 </LocationMatch>
 
 

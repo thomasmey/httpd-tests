@@ -315,8 +315,7 @@ if (have_module('actions')) {
 $envs = run_fcgi_envvar_request($fcgi_port, "/modules/proxy/fcgi/index.php");
 ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets correct SCRIPT_NAME by default");
 
-my $uds_sock = Apache::Test::vars('serverroot')."/logs/fcgi.sock";
 foreach my $url (@udstests) {
-    $envs = run_fcgi_envvar_request($uds_sock, $url);
+    $envs = run_fcgi_envvar_request("/tmp/apache-test-builtinfcgi.sock", "$url");
     ok t_cmp($envs->{'SCRIPT_NAME'}, "$url", "Server sets correct SCRIPT_NAME by default");
 }
