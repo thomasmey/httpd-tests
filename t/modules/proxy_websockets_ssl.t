@@ -10,7 +10,7 @@ use Apache::TestConfig ();
 my @test_cases = ( "ping0", "ping1" x 10, "ping2" x 100, "ping3" x 1024,  "sendquit");
 my $total_tests = 2;
 
-plan tests => $total_tests, need 'AnyEvent::WebSocket::Client',
+plan tests => $total_tests, need 'AnyEvent::WebSocket::Client', need 'URI::wss',
     need_module('ssl', 'proxy_http', 'lua'), need_min_apache_version('2.4.47');
 
 require AnyEvent;
