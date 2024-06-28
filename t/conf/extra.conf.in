@@ -1543,7 +1543,6 @@ LimitRequestFields    32
    <IfModule mod_proxy_html.c>
       <IfModule mod_proxy.c>
          Alias /modules/xml2enc/back @SERVERROOT@/htdocs/modules/xml2enc
-         Alias /modules/xml2enc/back/iso @SERVERROOT@/htdocs/modules/xml2enc
          <Location /modules/xml2enc/back>
              AddType application/foo+xml fooxml
              AddType application/notreallyxml notxml
