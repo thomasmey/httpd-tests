@@ -3,6 +3,7 @@ use warnings FATAL => 'all';
 
 use Apache::Test;
 use Apache::TestRequest;
+use Apache::TestUtil;
 
 ## 
 ## mod_dir tests
@@ -20,7 +21,7 @@ sub my_chomp {
     $actual =~ s/[\r\n]+$//s;
 }
 
-plan tests => @bad_index * @index * 5 + @bad_index + 5 + 3, need_module 'dir';
+plan tests => @bad_index * @index * 5 + @bad_index + 5 + 3 +1, need_module 'dir';
 
 foreach my $bad_index (@bad_index) {
 
@@ -105,6 +106,15 @@ else {
     ok ($res->code == 404);
 }
 
+
+if (!have_min_apache_version('2.4.61') || !have_module('mime') || !have_module('status')) {
+    skip("doesn't work");
+}
+else {
+    my $body = GET_BODY "/modules/dir/fallback/";
+    ok t_cmp($body, qr/Server Status/, "type->handler wasn't used");
+
+}
 
 sub write_htaccess {
     my $string = shift;

@@ -556,6 +556,13 @@ Alias /manual @inherit_documentroot@/manual
     <Directory @SERVERROOT@/htdocs/modules/dir/htaccess>
         AllowOverride Indexes
     </Directory>
+    <Directory @SERVERROOT@/htdocs/modules/dir/fallback>
+       <IfModule mod_mime.c>
+         AddType server-status .magictype
+       </IfModule>
+       DirectoryIndex fallback.magictype
+      # FallBackResource /modules/dir/fallback/fallback.magictype
+    </Directory>
 </IfModule>
 
 ##
