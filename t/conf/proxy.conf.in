@@ -180,11 +180,21 @@
       ProxyPassReverse /php-fpm-pp/ fcgi://localhost:9001/@SERVERROOT@/htdocs/
     </IfModule>
 
+    <IfModule mod_proxy_balancer.c>
+        # PR69168
+        <Proxy "balancer://test">
+            BalancerMember "fcgi://localhost:${FCGI_PORT}" route=localhost
+        </Proxy>
+        # reuse content, but the CGI on FCGI_PORT doesn't care what file we map to
+        Alias /modules/proxy/fcgi-balancer/ @SERVERROOT@/htdocs/modules/proxy/fcgi/
+        <LocationMatch /modules/proxy/fcgi-balancer/.*\.php>
+            SetHandler  "proxy:balancer://test"
+        </LocationMatch>
+    </IfModule>
 
   </VirtualHost>
 
    ProxyPass /proxy/wsoc ws://@SERVERNAME@:@PORT@/modules/lua/websockets.lua
- 
 </IfModule>
 
 <IfModule mod_rewrite.c>

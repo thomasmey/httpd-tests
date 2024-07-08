@@ -21,10 +21,17 @@ my @udstests = (
         "/modules/proxy/fcgi-uds-sethandler/index.php"
 );
 
+my @balancertests = ();
+if (have_min_apache_version('2.5.1')) {
+  push @balancertests, { url => "/modules/proxy/fcgi-balancer/index.php",          pathinfo => undef };
+  push @balancertests, { url => "/modules/proxy/fcgi-balancer/index.php/my/pi",    pathinfo => "/my/pi"};
+}
+
 plan tests => (7 * $have_fcgisetenvif) + (2 * $have_fcgibackendtype) +
                (2 * $have_fcgibackendtype * have_module('rewrite')) +
                (7 * have_module('rewrite')) + (7 * have_module('actions')) +
                (15 * $have_php_fpm * have_module('actions')) + 2
+               + 2*scalar(@balancertests)
                + 2*(scalar(@udstests)),
      need (
         'mod_proxy_fcgi',
@@ -318,4 +325,11 @@ ok t_cmp($envs->{'SCRIPT_NAME'}, '/modules/proxy/fcgi/index.php', "Server sets c
 foreach my $url (@udstests) {
     $envs = run_fcgi_envvar_request("/tmp/apache-test-builtinfcgi.sock", "$url");
     ok t_cmp($envs->{'SCRIPT_NAME'}, "$url", "Server sets correct SCRIPT_NAME by default");
+}
+
+for my $t (@balancertests) {
+    my $url = $t->{"url"};
+    my $pathinfo = $t->{"pathinfo"};
+    $envs = run_fcgi_envvar_request($fcgi_port, $url);
+    ok t_cmp($envs->{'PATH_INFO'}, $pathinfo, "Server sets correct PATH_INFO by default");
 }
