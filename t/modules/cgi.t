@@ -10,7 +10,7 @@ my $have_apache_2 = have_apache 2;
 my $have_apache_2050 = have_min_apache_version "2.0.50";
 my $have_apache_2460 = have_min_apache_version "2.4.60";
 
-my $script_log_length = 40960;
+my $script_log_length = 51200;
 
 ## mod_cgi test
 ##
@@ -19,7 +19,7 @@ my $script_log_length = 40960;
 ## AddHandler cgi-script .sh
 ## AddHandler cgi-script .pl
 ## ScriptLog logs/mod_cgi.log
-## ScriptLogLength 40960
+## ScriptLogLength 51200
 ## ScriptLogBuffer 256
 ## <Directory @SERVERROOT@/htdocs/modules/cgi>
 ## Options +ExecCGI
