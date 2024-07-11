@@ -22,7 +22,7 @@ my @udstests = (
 );
 
 my @balancertests = ();
-if (have_min_apache_version('2.5.1')) {
+if (have_min_apache_version('2.4.62')) {
   push @balancertests, { url => "/modules/proxy/fcgi-balancer/index.php",          pathinfo => undef };
   push @balancertests, { url => "/modules/proxy/fcgi-balancer/index.php/my/pi",    pathinfo => "/my/pi"};
 }
