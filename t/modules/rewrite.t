@@ -64,7 +64,22 @@ my @badquery = (
 if (have_min_apache_version('2.4.60')) {
     push(@badquery, (
         [ "/modules/rewrite/badquery/backref/%3ftheval"                 =>  ""],
+        [ "/modules/rewrite/badquery/backref-map/%3ftheval"             =>  ""],
         [ "/modules/rewrite/badquery/backref-optin/%3ftheval"           =>  "theval"],
+    ));
+}
+
+if (have_min_apache_version('2.4.63')) {
+    # cases not requiring opt-in because the splitting ? is not from an expansion
+    push(@badquery, (
+        # appending should be fine
+        [ "/modules/rewrite/badquery/backref-qsa/xxx?foo%3fbar"                 =>  "query=xxx&foo%3fbar"],
+        [ "/modules/rewrite/badquery/backref-qsalike/xxx?foo%3fbar"                 =>  "query=xxx&foo%3fbar"],
+        # %3f not used because query is discarded
+        [ "/modules/rewrite/badquery/backref-noqsa/xxx?foo%3fbar"               =>  "query=xxx"],
+        [ "/modules/rewrite/badquery/backref-noqsa-map/xxx?foo%3fbar"               =>  "query=xxx"],
+        # the first ? is from expansion, but not used to delineate query. first segment is copied to query in rule
+        [ "/modules/rewrite/badquery/backref-qslast/yyy/%3fzzz"                 =>  "query=yyy"],
     ));
 }
 
