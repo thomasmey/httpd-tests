@@ -23,8 +23,13 @@ function dafna()
 
 
 class dafna_class {
-	function dafna_class() {
+	var $myname;
+	function __construct() {
 		$this->myname = "Dafna";
+	}
+	# PHP4 compatibility
+	function dafna_class() {
+		self::__construct();
 	}
 	function GetMyName() {
 		return $this->myname;
