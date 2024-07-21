@@ -8,7 +8,7 @@ use Apache::TestRequest ();
 
 my $module = 'default';
 
-if (!have_min_apache_version('2.5.0')) {
+if (!have_min_apache_version('2.4.47')) {
     print "1..0 # skip: Not supported yet";
     exit 0;
 }
