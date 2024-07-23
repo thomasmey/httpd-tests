@@ -108,7 +108,7 @@ for my $server_deflate_uri (@server_deflate_uris) {
 }
 
 # mod_deflate fixes still pending to make this work...
-if (have_module('cgi') && have_min_apache_version('2.1.0')) {
+if (have_cgi && have_min_apache_version('2.1.0')) {
     my $sock = Apache::TestRequest::vhost_socket('default');
 
     ok $sock;
@@ -135,5 +135,5 @@ if (have_module('cgi') && have_min_apache_version('2.1.0')) {
     my $ret = $sock->read($response, 1024);
     ok t_cmp($ret, 0, "expect EOF after 304 header");
 } else {
-    skip "skipping 304/deflate tests without mod_cgi and httpd >= 2.1.0" foreach (1..$cgi_tests);
+    skip "skipping 304/deflate tests without cgi and httpd >= 2.1.0" foreach (1..$cgi_tests);
 }
