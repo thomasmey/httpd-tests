@@ -279,10 +279,10 @@
     <IfVersion < 2.4.60>
     RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa-qsl/(.*) /$1? [R,QSA,QSL]
     </IfVersion>
+    <IfVersion >= 2.4.60>
     <IfVersion > 2.4.62>
     RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa-qsl/(.*) /$1? [R,QSA,QSL]
     </IfVersion>
-    <IfVersion >= 2.4.60>
     <IfVersion <= 2.4.62>
     RewriteRule ^/modules/rewrite/escaping/qsd-like-plus-qsa-qsl/(.*) /$1? [R,QSA,QSL,UnsafeAllow3F]
     </IfVersion>

@@ -296,6 +296,7 @@ foreach my $t (@redirects) {
     t_debug "Check $url for redir $expect\n";
     $r = GET($url, redirect_ok => 0);
     my $loc = $r->header("location");
+    $loc = "" unless defined $loc;
     t_debug " redirect is $loc";
     ok $loc =~ /$expect/;
 }
