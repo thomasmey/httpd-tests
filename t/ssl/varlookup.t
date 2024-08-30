@@ -111,7 +111,7 @@ if (not have_min_apache_version('2.5.1')) {
 
 if (not have_min_apache_version('2.5.1') or
     Apache::Test::normalize_vstring(Apache::TestSSLCA::version()) <
-    Apache::Test::normalize_vstring("3.3.0")) {
+    Apache::Test::normalize_vstring("3.2.0")) {
     @vars = grep(!/_HANDSHAKE_RTT/, @vars);
 }
 
