@@ -1,0 +1,51 @@
+#
+# Config for mod_log_config tests
+#
+
+<IfModule mod_log_config.c>
+
+	# Test GlobalLog in all constellations
+    GlobalLog logs/global_log_server1 "%X %r %D"
+    #GlobalLog file nickname
+    #GlobalLog file format env=
+    #GlobalLog file nickname env=
+    #GlobalLog file format expr=
+    #GlobalLog file nickname expr=
+
+    # Test server defined CustomLog
+    CustomLog logs/custom_log_server1 "%a %b"
+
+    # mod_logio: %I %O %S %^FU %^FB
+
+    <VirtualHost mod_log_config>
+       DocumentRoot @SERVERROOT@/htdocs/modules/log_config
+
+       # Code coverage for most format strings
+       LogFormat "%% %a %{c}a %A %b %B %{keks}C %D %{HOME}e %f %F %h %{c}h %H %{user-agent}i %k %l %L %{c}L %m %{notevar}n %{content-type}o %{set-cookie}o %{length}o %p %{canonical}p %{local}p %{remote}p %{canonial}p %P %{pid}P %{tid}P %{hextid}P %q %r %R %s %>s %t %{begin}t %{end}t %{begin:}t %{end:}t %{sec}t %{msec}t %{usec}t %{msec_frac}t %{%F-%R}t %{usec_frac}t %T %{us}T %{ms}T %{s}T %{m}T %u %U %V %v %X %{digest}^ti %{digest}^to %% %404,501{User-agent}i %!200,304,302{Referer}i \t \n \r \\ \a \\\ " codecoverage
+
+       # Test virtual host CustomLog
+       CustomLog logs/custom_log_vh1 "%a %b"
+       CustomLog logs/custom_log_vh2 codecoverage
+       CustomLog logs/custom_log_vh3 "%f %F" env=UNIQUE_ID
+       CustomLog logs/custom_log_vh4 codecoverage env=UNIQUE_ID
+       CustomLog logs/custom_log_vh5 "%f %F" env=!UNIQUE_ID
+       CustomLog logs/custom_log_vh6 codecoverage env=!UNIQUE_ID
+       CustomLog logs/custom_log_vh7 "%k %l" expr=true
+       CustomLog logs/custom_log_vh8 codecoverage expr=true
+
+       # Test error_provider based CustomLog
+       # TODO: only available if resp. module is loaded and apache version
+       #CustomLog errorlog_provider:arg codecoverage
+       #CustomLog syslog: all
+
+       # Test pipe based CustomLog
+       CustomLog |/usr/bin/sed all
+
+       # Test single argument CustomLog
+       LogFormat "%% LogFormat without a name %T %%"
+
+       # Test virtual host TransferLog
+       TransferLog logs/transfer_log_vh1
+
+   </VirtualHost>
+</IfModule>
